@@ -1,4 +1,5 @@
 import re
+import parse
 
 
 
@@ -136,7 +137,7 @@ class Calendar():
     
     def day3(self):
         text_list = self.list_from_txt_input("day3.txt")
-        text = text_list[0]
+        text = "".join(text_list)
         mul_pattern = "mul\(\d+,\d+\)"
         mul_list = self.find_muls(mul_pattern, text)
 
@@ -146,18 +147,34 @@ class Calendar():
             string_value = self.numbers_from_string(mul)
             value = self.process_numbers(string_value)
             total+=value
+
+        #Solution from Reddit
+        print("Solution from Reddit: ", sum(x * y for x, y in parse.findall("mul({:d},{:d})", text)))
+
+        total1 = total2 = 0
+        enabled = True
+        for a, b, do, dont in re.findall(r"mul\((\d+),(\d+)\)|(do\(\))|(don't\(\))", text):
+            if do or dont:
+                enabled = bool(do)
+            else:
+                x = int(a) * int(b)
+                total1 += x
+                total2 += x * enabled
+
+        print(total1, total2)
         
-        print(total)
+        print("My much lengthier and shittier solution: ", total)
 
 
     def process_numbers(self, numbers:list[str]) -> int:
         values = [int(number) for number in numbers]
         total = 0
-        for number in values:
-            if total == 0:
-                total = number
-            else:
-                total*=number
+        total = values[0] * values[1]
+        # for number in values:
+        #     if total == 0:
+        #         total = number
+        #     else:
+        #         total*=number
         return total
         
     def numbers_from_string(self, string:str) -> list:
